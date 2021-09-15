@@ -1,0 +1,8 @@
+# include all files by default
+graft src
+include versioneer.py
+include src/_version.py
+global-exclude *.pyc
+recursive-exclude * __pycache__
+
+include LICENSE

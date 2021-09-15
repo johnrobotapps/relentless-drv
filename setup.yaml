@@ -1,0 +1,33 @@
+name: RelentlessDrv
+released: false
+description: 'Relentless Performance Fitness App Backend'
+download_url: https://github.com/johnrobotapps/relentless-drv
+url:          https://github.com/johnrobotapps/relentless-drv
+
+authors:
+  - John R. Ossyra
+
+emails:
+  - johnrobotapps@gmail.com
+
+classifiers: |
+  Development Status :: 3 - Alpha
+  Programming Language :: Python :: 3
+  Operating System :: POSIX
+  Operating System :: Unix
+  Operating System :: MacOS
+
+packages:
+  - relentlessdrv
+  - relentlessdrv.database
+
+platforms:
+  - Linux
+  - Mac OS X
+
+install_requires:
+  - jsonschema
+  - pyyaml
+  - ujson
+  - pymongo>=3
+
