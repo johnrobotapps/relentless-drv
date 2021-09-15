@@ -6,3 +6,4 @@ global-exclude *.pyc
 recursive-exclude * __pycache__
 
 include LICENSE
+include relentlessdrv/_version.py

@@ -70,7 +70,9 @@ with open('setup.yaml') as f:
 
 setup_args = build_keyword_dictionary(preferences)
 
+setup_args['version'] = versioneer.get_version()
+setup_args['cmdclass'] = versioneer.get_cmdclass()
+
 setup (**setup_args)
 
-# TODO reintroduce versioneer
 
