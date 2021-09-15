@@ -31,3 +31,7 @@ install_requires:
   - ujson
   - pymongo>=3
 
+scripts:
+  - scripts/initialize_db
+
+
