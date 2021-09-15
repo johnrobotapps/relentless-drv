@@ -1,3 +1,10 @@
+
+
+__all__ = [
+    "DATABASE_FORMAT",
+]
+
+
 from uuid import UUID
 
 
@@ -25,16 +32,16 @@ MUSCLE_GROUPS = {
 }
 
 
-app_dict = {
-    "foodJournal": None,
-    "exerciseLibrary": exercise_library_item,
-}
-
-
 exercise_library_item = {
     "name": str,
     "description": str,
     "muscleGroup": isaMuscleGroup,
+}
+
+
+app_dict = {
+    "foodJournal": None,
+    "exerciseLibrary": exercise_library_item,
 }
 
 

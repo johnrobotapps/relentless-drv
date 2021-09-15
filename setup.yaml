@@ -20,6 +20,7 @@ classifiers: |
 packages:
   - relentlessdrv
   - relentlessdrv.database
+  - relentlessdrv.datastructures
 
 platforms:
   - Linux
