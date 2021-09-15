@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 
 
-import pymongo
-
 import sys
-
+from pymongo import MongoClient
 
 from relentlessdrv.datastructures import DATABASE_FORMAT
 
@@ -21,11 +19,18 @@ args = list()
 
 assert 1 == nargv <= nargs
 
+
 # SECOND ARGUMENT is always dburl if given
 if nargv:
     args = sys.argv[1:]
     dbname = sys.argv[1]
+
+
+if nargv > 1:
     dburl = args[2]
+else:
+    dburl = "mongodb://127.0.0.1/mongodb/"
+
 
 
 client = MongoClient(dburl)
