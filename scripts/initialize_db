@@ -4,41 +4,28 @@
 import sys
 from pymongo import MongoClient
 
-from relentlessdrv.datastructures import DATABASE_FORMAT
+
+from relentlessdrv.datastructures import (
+    DATABASE_FORMAT, minimal_schemas
+)
 
 
 
 REQUIRED_FIELDS = list(DATABASE_FORMAT)
 
 
-# SECOND ARGUMENT is always dburl if given
-nargs = 2
-nargv = len(sys.argv[1:])
-args = list()
-
-assert 1 == nargv <= nargs
+client = MongoClient()
 
 
-# SECOND ARGUMENT is always dburl if given
-if nargv:
-    args = sys.argv[1:]
-    dbname = sys.argv[1]
+for dbfield in REQUIRED_FIELDS:
 
+    newdb = client[dbfield]
 
-if nargv > 1:
-    dburl = args[2]
-else:
-    dburl = "mongodb://127.0.0.1/mongodb/"
+    for field in client[dbfield]:
 
+        newdb.create_collection(field)
 
-
-client = MongoClient(dburl)
-
-newdb = client[dbname]
-
-
-for field in REQUIRED_FIELDS:
-    newdb.create_collection(field)
-
-
+        newdb[field].insert_one(
+            minimal_schemas[field]
+        )
 

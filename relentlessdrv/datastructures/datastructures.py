@@ -1,7 +1,7 @@
 
 
 __all__ = [
-    "DATABASE_FORMAT",
+    "minimal_schemas",
 ]
 
 
@@ -20,11 +20,14 @@ isin = lambda item, grouping: any([
 
 
 isaMuscleGroup = lambda item: isin(
-    item, MUSCLE_GROUPS)
+    item, muscle_groups
+)
 
 
-MUSCLE_GROUPS = {
-    ("shoulders", "deltoids"), "triceps", "biceps",
+# Can be tuple of synonyms or string
+muscle_groups = {
+    ("shoulders", "deltoids"),
+    "triceps", "biceps",
     "quads", "hamstrings", "calves",
     "glutes", "forearms", "chest",
     "abs", "lower back", "traps",
@@ -52,7 +55,7 @@ user_dict = {
 }
 
 
-DATABASE_FORMAT = {
+minimal_schemas = {
     "APP" : app_dict,
     "USER": user_dict,
 }
