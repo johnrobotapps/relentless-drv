@@ -14,7 +14,6 @@ REQUIRED_FIELDS = list(DATABASE_FORMAT)
 # SECOND ARGUMENT is always dburl if given
 nargs = 2
 nargv = len(sys.argv[1:])
-
 args = list()
 
 assert 1 == nargv <= nargs

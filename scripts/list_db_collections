@@ -7,14 +7,28 @@ import pymongo
 host = "127.0.0.1"
 port = 27107
 
+administrative_dbs = [
+    "admin", "config", "local",
+]
+
 
 if __name__ == "__main__":
 
     db = pymongo.MongoClient(
-        port=port, host=host,
+    #    port=port, host=host,
     )
 
-    print(db.list_collections())
+    dbs = [
+        nm for nm in db.list_database_names()
+        if nm not in administrative_dbs
+    ]
+
+    for nm in dbs:
+
+        print("\nDatabase: {}".format(type(nm)))
+        print("-------------------------")
+        print(db[nm].list_collection_names())
+
 
     db.close()
 
