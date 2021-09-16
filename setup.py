@@ -1,4 +1,5 @@
 import sys, os, shutil
+import versioneer
 
 try:
     from setuptools import setup, Command, find_packages

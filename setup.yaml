@@ -34,5 +34,6 @@ install_requires:
 
 scripts:
   - scripts/initialize_db
+  - scripts/list_db_collections
 
 

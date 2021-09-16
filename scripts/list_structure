@@ -1,9 +1,0 @@
-#!/usr/bin/env python
-
-import pymongo
-
-
-db = pymongo.MongoClient
-
-
-
