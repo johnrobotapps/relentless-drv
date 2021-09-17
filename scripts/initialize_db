@@ -4,28 +4,24 @@
 import sys
 from pymongo import MongoClient
 
-
 from relentlessdrv.datastructures import (
-    DATABASE_FORMAT, minimal_schemas
+    ADMIN_FIELDS, minimal_schemas
 )
 
 
 
-REQUIRED_FIELDS = list(DATABASE_FORMAT)
-
-
 client = MongoClient()
 
+dbfields = list(minimal_schemas)
 
-for dbfield in REQUIRED_FIELDS:
+for dbfield in dbfields:
 
     newdb = client[dbfield]
 
-    for field in client[dbfield]:
+    for field in minimal_schemas[dbfield]:
 
-        newdb.create_collection(field)
-
+        #newdb.create_collection(field)
         newdb[field].insert_one(
-            minimal_schemas[field]
+            minimal_schemas[dbfield][field]
         )
 
