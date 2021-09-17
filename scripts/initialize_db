@@ -15,13 +15,9 @@ client = MongoClient()
 dbfields = list(minimal_schemas)
 
 for dbfield in dbfields:
-
     newdb = client[dbfield]
-
     for field in minimal_schemas[dbfield]:
-
-        #newdb.create_collection(field)
         newdb[field].insert_one(
-            minimal_schemas[dbfield][field]
-        )
+            minimal_schemas[dbfield][field])
+        
 
