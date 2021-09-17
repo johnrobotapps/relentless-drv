@@ -47,7 +47,7 @@ video_formats = [
 ]
 
 
-isVideoDataFile = lambda v: any([
+isVideoDataFiletype = lambda v: any([
     v.endswith(sfx)
     for sfv in video_formats
 ])
@@ -56,7 +56,7 @@ isVideoDataFile = lambda v: any([
 exercise_library_item = {
     "name": str,
     "description": str,
-    "video": isVideoData,
+    "video": isVideoDataFiletype,
     "muscleGroup": isaMuscleGroup,
 }
 
