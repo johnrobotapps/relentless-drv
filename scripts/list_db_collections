@@ -3,24 +3,17 @@
 
 import pymongo
 
+from relentlessdrv.datastructures import ADMIN_FIELDS
 
-host = "127.0.0.1"
-port = 27107
-
-administrative_dbs = [
-    "admin", "config", "local",
-]
 
 
 if __name__ == "__main__":
 
-    db = pymongo.MongoClient(
-    #    port=port, host=host,
-    )
+    db = pymongo.MongoClient()
 
     dbs = [
         nm for nm in db.list_database_names()
-        if nm not in administrative_dbs
+        if nm not in ADMIN_FIELDS
     ]
 
     for nm in dbs:
