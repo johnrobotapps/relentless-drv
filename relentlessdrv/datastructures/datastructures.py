@@ -2,10 +2,14 @@
 
 __all__ = [
     "minimal_schemas",
+    "ADMIN_FIELDS",
 ]
 
 
-from uuid import UUID
+
+ADMIN_FIELDS = [
+    "admin", "config", "local",
+]
 
 
 isin = lambda item, grouping: any([
@@ -24,6 +28,9 @@ isaMuscleGroup = lambda item: isin(
 )
 
 
+isNutritionData = lambda: True
+
+
 # Can be tuple of synonyms or string
 muscle_groups = {
     ("shoulders", "deltoids"),
@@ -35,15 +42,32 @@ muscle_groups = {
 }
 
 
+video_formats = [
+    ".gif", ".mp4",
+]
+
+
+isVideoDataFile = lambda v: any([
+    v.endswith(sfx)
+    for sfv in video_formats
+])
+
+
 exercise_library_item = {
     "name": str,
     "description": str,
+    "video": isVideoData,
     "muscleGroup": isaMuscleGroup,
 }
 
 
+foodjournal_item = {
+    "name": str,
+    "nutrition": isNutritionData,
+}
+
+
 app_dict = {
-    "foodJournal": None,
     "exerciseLibrary": exercise_library_item,
 }
 
@@ -51,7 +75,7 @@ app_dict = {
 user_dict = {
     "name": str,
     "device": int,
-    "_id": UUID,
+    "foodJournal": foodjournal_item,
 }
 
 
