@@ -68,9 +68,9 @@ class MongoDB:
     def add_document(self, document):
         if self.connected:
             if self._validate_document(document):
-                target, doc = 
+                target, doc = self.__validate(doc)
                 self._client.insert_one(
-
+                    doc
                 )
 
 

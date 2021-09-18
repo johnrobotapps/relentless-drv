@@ -28,14 +28,14 @@ isaMuscleGroup = lambda item: isin(
     item, muscle_groups
 )
 
-isNutritionData = lambda: True
-isString = lambda s: type(s) is str
-isInteger = lambda i: type(i) is int
-
 isVideoDataFiletype = lambda v: any([
     v.endswith(sfx)
     for sfv in video_formats
 ])
+
+isNutritionData = lambda: True
+isString = lambda s: type(s) is str
+isInteger = lambda i: type(i) is int
 
 
 # Can be tuple of synonyms or string
