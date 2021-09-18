@@ -17,7 +17,9 @@ dbfields = list(minimal_schemas)
 for dbfield in dbfields:
     newdb = client[dbfield]
     for field in minimal_schemas[dbfield]:
-        newdb[field].insert_one(
-            minimal_schemas[dbfield][field])
+        newdb.create_collection(field)
+        # Cant insert schema
+        #newdb[field].insert_one(
+        #    minimal_schemas[dbfield][field])
         
 
