@@ -12,6 +12,7 @@ ADMIN_FIELDS = [
 ]
 
 
+
 isin = lambda item, grouping: any([
     item == gritem
     if type(gritem) is not tuple
@@ -27,8 +28,14 @@ isaMuscleGroup = lambda item: isin(
     item, muscle_groups
 )
 
-
 isNutritionData = lambda: True
+isString = lambda s: type(s) is str
+isInteger = lambda i: type(i) is int
+
+isVideoDataFiletype = lambda v: any([
+    v.endswith(sfx)
+    for sfv in video_formats
+])
 
 
 # Can be tuple of synonyms or string
@@ -47,22 +54,16 @@ video_formats = [
 ]
 
 
-isVideoDataFiletype = lambda v: any([
-    v.endswith(sfx)
-    for sfv in video_formats
-])
-
-
 exercise_library_item = {
-    "name": str,
-    "description": str,
+    "name": isString,
+    "description": isString,
     "video": isVideoDataFiletype,
     "muscleGroup": isaMuscleGroup,
 }
 
 
 foodjournal_item = {
-    "name": str,
+    "name": isString,
     "nutrition": isNutritionData,
 }
 
@@ -73,8 +74,8 @@ app_dict = {
 
 
 user_dict = {
-    "name": str,
-    "device": int,
+    "name": isString,
+    "device": isInteger,
     "foodJournal": foodjournal_item,
 }
 
