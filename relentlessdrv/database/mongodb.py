@@ -66,6 +66,7 @@ class MongoDB:
         return validated
 
     def add_document(self, document):
+
         if self.connected:
             if self._validate_document(document):
                 target, doc = self.__validate(doc)
