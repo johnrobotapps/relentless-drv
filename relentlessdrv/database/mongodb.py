@@ -1,4 +1,9 @@
 
+
+__all__ = [
+    "MongoDB",
+]
+
 from pymongo import MongoClient
 
 from ..datastructures import ADMIN_FIELDS, minimal_schemas
@@ -18,6 +23,56 @@ class MongoDB:
     """Interface to the Mongo Database
     simple wrapper for `pymongo.MongoClient`
     """
+
+
+    @property
+    def connected(self):
+        return bool(
+            self._client.server_info()
+        ) if self._client else False
+
+
+    @staticmethod
+    def __validate(document, target):
+
+        validated = False
+
+        assert bool(target)
+
+        m = minimal_schemas
+        while target:
+            m = m[target.pop()]
+
+        for k,checking_func in m:
+            assert checking_func(doc[k])
+
+        return validated
+
+
+    def _validate_document(self, document):
+        validated = False
+        if len(document) == 1:
+            target = list(document)
+            doc = document[target]
+            while len(doc) == 1:
+                t = list(doc)[0]
+                target.append(t)
+                doc = doc[t]
+            else:
+                validated = self.__validate(
+                    doc, target
+                )
+        
+        return validated
+
+    def add_document(self, document):
+        if self.connected:
+            if self._validate_document(document):
+                target, doc = 
+                self._client.insert_one(
+
+                )
+
 
     def __init__(self, host="localhost", port=27017):
 
