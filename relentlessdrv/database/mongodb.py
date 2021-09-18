@@ -65,6 +65,7 @@ class MongoDB:
         
         return validated
 
+
     def add_document(self, document):
 
         if self.connected:
