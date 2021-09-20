@@ -19,7 +19,8 @@ MINIMAL_TEMPLATE = {
     }
 }
 
-fakelogs = {
+
+foodjournal_example = {
 
     "2021-09-18": {
         "id": 0,

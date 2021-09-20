@@ -12,6 +12,22 @@ ADMIN_FIELDS = [
 ]
 
 
+def isLogEntryDate(entrydate):
+
+    parts = entrydate.split("-")
+
+    if int(parts[0]) - 2020 < 1:
+        return False
+
+    elif int(parts[1]) not in list(range(1,13)):
+        return False
+
+    elif int(parts[2]) not in list(range(1,31)):
+        return False
+
+    return True
+
+
 
 isin = lambda item, grouping: any([
     item == gritem
@@ -33,7 +49,7 @@ isVideoDataFiletype = lambda v: any([
     for sfv in video_formats
 ])
 
-isNutritionData = lambda: True
+isMacroData = lambda: True
 isString = lambda s: type(s) is str
 isInteger = lambda i: type(i) is int
 
@@ -62,9 +78,10 @@ exercise_library_item = {
 }
 
 
-foodjournal_item = {
+foodjournal_entry = {
     "name": isString,
-    "nutrition": isNutritionData,
+    "date": is,
+    "macros": isMacroData,
 }
 
 
@@ -76,7 +93,7 @@ app_dict = {
 user_dict = {
     "name": isString,
     "device": isInteger,
-    "foodJournal": foodjournal_item,
+    "foodJournal": foodjournal_entry,
 }
 
 

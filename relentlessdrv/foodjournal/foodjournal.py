@@ -5,30 +5,19 @@ __all__ = [
 ]
 
 
+from ..database import DBMeta
 
-def isLogEntry(entrydate):
-
-    parts = entrydate.split("-")
-
-    if int(parts[0]) - 2020 < 1:
-        return False
-
-    elif int(parts[1]) not in list(range(1,13)):
-        return False
-
-    elif int(parts[2]) not in list(range(1,31)):
-        return False
-
-    return True
+from ..datastructures import foodjournal_entry
+from ..datastructures.datastructures import isLogEntryData
 
 
 
-class FoodJournal:
+class FoodJournal(metaclass=DBMeta):
 
     def __init__(self, logentries):
 
         for entrydate in list(logentries):
-            assert isLogEntry(entrydate)
+            assert isLogEntryDate(entrydate)
 
         self._logentries = logentries
 

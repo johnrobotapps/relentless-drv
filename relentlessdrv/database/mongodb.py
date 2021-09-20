@@ -50,14 +50,20 @@ class MongoDB:
 
 
     def _validate_document(self, document):
+
         validated = False
+
         if len(document) == 1:
+
             target = list(document)
             doc = document[target]
+
             while len(doc) == 1:
+
                 t = list(doc)[0]
                 target.append(t)
                 doc = doc[t]
+
             else:
                 validated = self.__validate(
                     doc, target
