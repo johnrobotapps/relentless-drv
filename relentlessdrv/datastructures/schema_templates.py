@@ -1,6 +1,7 @@
 
 
 MINIMAL_TEMPLATE = {
+
     "APP": {
         "exerciseLibrary": {
             "description": "a description of exercise string",
@@ -9,12 +10,22 @@ MINIMAL_TEMPLATE = {
             "video": "video file name",
         }
     },
+
     "USER": {
-        "device": 9999999,
-        "name": "the users name",
-        "foodJournal": {
-            "name": "this field wont exist for too long",
-            "nutrition": "nutrition data",
+        "userid1": {
+            "device": 9999999,
+            "name": "Jane Doe",
+            "foodJournal": foodjournal_example,
+        },
+        "userid2": {
+            "device": 9999998,
+            "name": "John Doe",
+            "foodJournal": foodjournal_example,
+        },
+        "userid3": {
+            "device": 9999997,
+            "name": "Jill Smith",
+            "foodJournal": foodjournal_example,
         },
     }
 }
