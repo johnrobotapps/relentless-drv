@@ -25,3 +25,4 @@ class DBMeta(type):
             if type(mongodb) is MongoClient:
                 cls._database = mongodb
 
+

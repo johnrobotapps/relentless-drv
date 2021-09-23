@@ -1,4 +1,4 @@
 
-from .datastructures import *
-from .schema_templates import *
+from .schemas import *
+from .templates import *
 
