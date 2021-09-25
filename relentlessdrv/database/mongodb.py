@@ -4,19 +4,11 @@ __all__ = [
     "MongoDB",
 ]
 
+
 from pymongo import MongoClient
 
 from ..datastructures import ADMIN_FIELDS, minimal_schemas
 
-
-#class __MongoDB_Protected:
-#    _add_db_method_name = HARDBRACKETS MAGIC METHOD
-#    def block:
-#        setattr(getattr(
-#            _add_db_method_name), lambda: None)
-#        
-
-#class MongoDB(__MongoDB_Protected):
 
 
 class MongoDB:
@@ -27,6 +19,8 @@ class MongoDB:
 
     @property
     def connected(self):
+        """Check if instance is connected to DB
+        """
         return bool(
             self._client.server_info()
         ) if self._client else False
@@ -34,7 +28,8 @@ class MongoDB:
 
     @staticmethod
     def __validate(document, target):
-
+        """Validity check of doc against schema
+        """
         validated = False
 
         assert bool(target)
@@ -77,9 +72,12 @@ class MongoDB:
         if self.connected:
             if self._validate_document(document):
                 target, doc = self.__validate(doc)
-                self._client.insert_one(
-                    doc
-                )
+                #self._client.insert_one(
+                #    doc
+                #)
+                print(pformat(
+        "Validated:\n -Target: {}\n -Doc: {}\n".format(
+            target, doc)))
 
 
     def __init__(self, host="localhost", port=27017):

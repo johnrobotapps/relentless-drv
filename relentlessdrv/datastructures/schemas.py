@@ -1,4 +1,14 @@
 
+"""Schema for schema structure
+
+  --> schema embedded dict layers
+
+top -    Mongo Database
+second-  Mongo Collection
+
+lower-   App Datastructure
+
+"""
 
 __all__ = [
     "minimal_schemas",
@@ -6,52 +16,15 @@ __all__ = [
 ]
 
 
+from uuid import UUID
+
+from .validators import *
+
 
 ADMIN_FIELDS = [
     "admin", "config", "local",
 ]
 
-
-def isLogEntryDate(entrydate):
-
-    parts = entrydate.split("-")
-
-    if int(parts[0]) - 2020 < 1:
-        return False
-
-    elif int(parts[1]) not in list(range(1,13)):
-        return False
-
-    elif int(parts[2]) not in list(range(1,31)):
-        return False
-
-    return True
-
-
-
-isin = lambda item, grouping: any([
-    item == gritem
-    if type(gritem) is not tuple
-    else any([
-        item==ggritem
-        for ggritem in gritem
-    ])
-    for gritem in grouping
-])
-
-
-isaMuscleGroup = lambda item: isin(
-    item, muscle_groups
-)
-
-isVideoDataFiletype = lambda v: any([
-    v.endswith(sfx)
-    for sfv in video_formats
-])
-
-isMacroData = lambda: True
-isString = lambda s: type(s) is str
-isInteger = lambda i: type(i) is int
 
 
 # Can be tuple of synonyms or string
@@ -70,36 +43,56 @@ video_formats = [
 ]
 
 
-exercise_library_item = {
-    "name": isString,
+exercise_item = {
+    "id":          isType(UUID),
+    "name":        isString,
     "description": isString,
-    "video": isVideoDataFiletype,
+    "video":       isVideoDataFiletype,
     "muscleGroup": isaMuscleGroup,
 }
 
 
-foodjournal_entry = {
-    "name": isString,
-    "date": is,
+food_item = {
+    "id":     isType(UUID),
+    "name":   isString,
     "macros": isMacroData,
 }
 
 
-app_dict = {
-    "exerciseLibrary": exercise_library_item,
+food_journal_entry = {
+    "consumed":  isType(float),
+    "published": isType(float),
+    "foodItem":  food_item,
 }
 
 
-user_dict = {
-    "name": isString,
-    "device": isInteger,
-    "foodJournal": foodjournal_entry,
+food_journal = {
+    "id":        isType(UUID),
+    "date":      isDate,
+    "published": isType(float),
+    "fooditems": food_journal_entry
+}
+
+
+user_profile = {
+    "id":          isType(UUID),
+    "name":        isString,
+    "device":      isInteger,
+    "username":    isUserName,
+    "foodJournal": food_journal,
 }
 
 
 minimal_schemas = {
-    "APP" : app_dict,
-    "USER": user_dict,
+
+    # DATABASE
+    "relentless-storage" : {
+
+        # COLLECTIONs
+        "exerciseLibrary": exercise_item,
+        "foodItemLibrary": food_item,
+        "users":           user_profile,
+    }
 }
 
 
