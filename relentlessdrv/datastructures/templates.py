@@ -16,21 +16,25 @@ is defined.
 __all__ = ["minimalTemplate"]
 
 
-from pprint import pprint
 
 
 from uuid import UUID, uuid4
+from pprint import pformat
+
+from .._logger import get_logger
 
 
+logger = get_logger(__name__)
 
 
 
 # lowerCamel for factory type things
 def minimalTemplate():
+    """Random UUIDs created for template
+    """
     return _replace_type(
         _minimal_template, UUID, uuid4
     )
-
 
 
 
@@ -63,18 +67,18 @@ def _replace_type(
     assert type(template_dict) is dict
     assert callable(factory_func)
 
-    print("\n\nRESULT:")
-    pprint(result)
+    logger.debug("\n\nRESULT:")
+    logger.debug(pformat(result))
 
     for field, value in template_dict.items():
 
-        print("current field: %s"%field)
-        print("current value:")
-        pprint(value)
+        logger.debug("current field: %s"%field)
+        logger.debug("current value:")
+        logger.debug(pformat(value))
 
         if type(value) is list:
 
-            print("LIST was found")
+            logger.debug("LIST was found")
 
             r = result[field] = list()
 
@@ -95,7 +99,7 @@ def _replace_type(
 
         elif type(value) is dict:
 
-            print("DICT was found")
+            logger.debug("DICT was found")
 
             r = result[field] = dict()
 
@@ -107,11 +111,11 @@ def _replace_type(
             )
 
         elif value is cls:
-            pprint("GENERATE from factory: %s"%field)
+            logger.debug("GENERATE from factory: %s"%field)
             result[field] = factory_func()
 
         else:
-            pprint("DEEPCOPYovering: %s"%field)
+            logger.debug("COPY: %s"%field)
             result[field] = value
 
     return result
@@ -230,20 +234,20 @@ _minimal_template = {
                 "video":       "dumbell-curl.mp4",
                 "description": "curl dumbell upwards from dead hang to shoulder",
             },
-  #          {
-  #              "id":           UUID,
-  #              "muscleGroup": "triceps",
-  #              "name":        "tricep extension-rope",
-  #              "video":       "tricep-extension-rope.mp4",
-  #              "description": "extend rope downwards from shoulder to hanging position",
-  #          },
+            {
+                "id":           UUID,
+                "muscleGroup": "triceps",
+                "name":        "tricep extension-rope",
+                "video":       "tricep-extension-rope.mp4",
+                "description": "extend rope downwards from shoulder to hanging position",
+            },
         ],
         # Collection Name
         "foodItemLibrary": [
             foodItem1,
-  #          foodItem2,
-  #          foodItem3,
-  #          foodItem4,
+            foodItem2,
+            foodItem3,
+            foodItem4,
         ],
         # Collection Name
         "users": [
@@ -254,23 +258,21 @@ _minimal_template = {
                 "name":        "Jane Doe",
                 "foodJournal": foodjournal_example[:3],
             },
-  #          {
-  #              "id":          UUID,
-  #              "device":      333333334,
-  #              "username":    "cooluser",
-  #              "name":        "John Doe",
-  #              "foodJournal": foodjournal_example[1:],
-  #          },
-  #          {
-  #              "id":          UUID,
-  #              "device":      333333335,
-  #              "username":    "acooluser",
-  #              "name":        "Jill Smith",
-  #              "foodJournal": foodjournal_example[::2],
-  #          },
+            {
+                "id":          UUID,
+                "device":      333333334,
+                "username":    "cooluser",
+                "name":        "John Doe",
+                "foodJournal": foodjournal_example[1:],
+            },
+            {
+                "id":          UUID,
+                "device":      333333335,
+                "username":    "acooluser",
+                "name":        "Jill Smith",
+                "foodJournal": foodjournal_example[::2],
+            },
         ],
     },
 }
-
-
 
