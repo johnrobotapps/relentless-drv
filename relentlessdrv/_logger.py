@@ -1,7 +1,11 @@
 
 
-import logging
 
+import logging
+from getpass import getuser
+
+
+logs_path = f"/home/{getuser()}/logs/relentlessdrv/"
 
 def get_logger(logsource, loglevel="WARNING"):
 
@@ -25,8 +29,7 @@ def get_logger(logsource, loglevel="WARNING"):
             "Invalid loglevel argument"
         )
 
-    logfile_pfx = "relentless"
-    logfilename = ".".join(logfile_pfx, logsource, "log")
+    logfilename = f"{logs_path}{logsource}.log"
 
     formatter = logging.Formatter(
         "%(asctime)s --- %(name)s --- %(levelname)s   ||   %(message)s"
