@@ -7,7 +7,7 @@ from getpass import getuser
 
 logs_path = f"/home/{getuser()}/logs/relentlessdrv/"
 
-def get_logger(logsource, loglevel="WARNING"):
+def get_logger(logsource, loglevel="DEBUG"):
 
     if loglevel.lower() == "info":
         loglevel = logging.INFO
