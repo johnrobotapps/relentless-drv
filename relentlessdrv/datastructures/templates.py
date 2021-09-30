@@ -13,8 +13,10 @@ is defined.
 
 
 
-__all__ = ["minimalTemplate"]
-
+__all__ = [
+    "minimalTemplate",
+#    "template_by_document",
+]
 
 
 
@@ -26,6 +28,77 @@ from .._logger import get_logger
 
 logger = get_logger(__name__)
 
+
+
+def _gen_addresses(key, datadict, addresses=set()):
+    """Generate the set of valid addresses for
+    data entry from a (presumably template)
+    collection. 
+
+    Address format:
+     - a set of dict key tuples leading to
+       data entry points
+
+
+    Arguments
+    ---------
+    key: str that marks routes through the data
+
+    datadict: dict with embedded dicts/lists
+
+    Addresses include:
+     - [dbname, colname]
+      
+    """
+    if hasattr(datadict, 'iteritems'):
+        for k, v in datadict.iteritems():
+            if k == key:
+                yield v
+            if isinstance(v, dict):
+                for result in gen_dict_extract(key, v):
+                    yield result
+            elif isinstance(v, list):
+                for d in v:
+                    for result in gen_dict_extract(key, d):
+                        yield result
+
+
+
+def db_data_addresses(dbdict):
+
+    if len(dbdict) != 1:
+        logger.debug("dbdict length must be 1")
+
+    dbname = list(dbdict)[0]
+    result = {dbname: dict()}
+    t = dbdict[dbname]
+
+    for colname, collection in dbdict[dbname].iteritems():
+
+        if type(collection) is not list:
+            logger.debug((
+                f"Collection {colname} is "
+                f"type {type(collection)}, "
+                f"list is required"
+            ))
+            continue
+
+
+        result[dbname][colname] = list(_gen_docs(collection))
+
+        for doc in collection:
+
+            if type(doc) is not dict:
+                logger.debug((
+                    f"Document in {colname} is "
+                    f"type {type(doc)}, "
+                    f"dict is required"
+                ))
+                continue
+
+                for k,v in doc.items():
+                    r.append(k)
+                    g
 
 
 # lowerCamel for factory type things
@@ -125,25 +198,25 @@ def _replace_type(
 
 # minimal FoodItem definition
 foodItem1 = {
-    "id":     UUID,
+    "_id":     UUID,
     "name":   "Mashed Potatoes",
     "macros": [0.06, 0.13, 0.05],
 }
 
 foodItem2 = {
     "name":   "Gravy",
-    "id":     UUID,
+    "_id":     UUID,
     "macros": [0.114, 0.13, 0.05],
 }
 
 foodItem3 = {
-    "id":     UUID,
+    "_id":     UUID,
     "name":   "Biscuit",
     "macros": [0.19, 0.33, 0.04],
 }
 
 foodItem4 = {
-    "id":     UUID,
+    "_id":     UUID,
     "name":   "Candy",
     "macros": [0.03, 0.68, 0.0],
 }
@@ -158,17 +231,20 @@ foodLogItem1 = {
     "fooditem": foodItem1,
 }
 
+
 foodLogItem2 = {
     "consumed":  37.5,
     "published": 1631916607.2169868,
     "fooditem": foodItem2,
 }
 
+
 foodLogItem3 = {
     "consumed":  35.1,
     "published": 1631820233.5943558,
     "fooditem": foodItem3,
 }
+
 
 foodLogItem4 = {
     "consumed":  34.1,
@@ -181,7 +257,7 @@ foodLogItem4 = {
 # Entries for FoodJournal collection
 foodjournal_example = [
     {
-        "id":        UUID,
+        "_id":        UUID,
         "date":      "2021-09-16",
         "published": 1631720232.5943558,
         "fooditems": [
@@ -189,7 +265,7 @@ foodjournal_example = [
         ],
     },
     {
-        "id":        UUID,
+        "_id":        UUID,
         "date":      "2021-09-17",
         "published": 1631820232.5943558,
         "fooditems": [
@@ -199,7 +275,7 @@ foodjournal_example = [
         ],
     },
     {
-        "id":        UUID,
+        "_id":        UUID,
         "date":      "2021-09-18",
         "published": 1631916603.2869868,
         "fooditems": [
@@ -210,7 +286,7 @@ foodjournal_example = [
         ],
     },
     {
-        "id":        UUID,
+        "_id":        UUID,
         "date":      "2021-09-19",
         "published": 1632002978.872485,
         "fooditems": [
@@ -228,14 +304,14 @@ _minimal_template = {
         # Collection Name
         "exerciseLibrary": [
             {
-                "id":          UUID,
+                "_id":          UUID,
                 "muscleGroup": "biceps",
                 "name":        "dumbell curl",
                 "video":       "dumbell-curl.mp4",
                 "description": "curl dumbell upwards from dead hang to shoulder",
             },
             {
-                "id":           UUID,
+                "_id":           UUID,
                 "muscleGroup": "triceps",
                 "name":        "tricep extension-rope",
                 "video":       "tricep-extension-rope.mp4",
@@ -252,21 +328,21 @@ _minimal_template = {
         # Collection Name
         "users": [
             {
-                "id":          UUID,
+                "_id":          UUID,
                 "device":      333333333,
                 "username":    "cooluser1",
                 "name":        "Jane Doe",
                 "foodJournal": foodjournal_example[:3],
             },
             {
-                "id":          UUID,
+                "_id":          UUID,
                 "device":      333333334,
                 "username":    "cooluser",
                 "name":        "John Doe",
                 "foodJournal": foodjournal_example[1:],
             },
             {
-                "id":          UUID,
+                "_id":          UUID,
                 "device":      333333335,
                 "username":    "acooluser",
                 "name":        "Jill Smith",

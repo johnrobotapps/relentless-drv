@@ -1,5 +1,5 @@
 
-"""Schema for schema structure
+"""Schema for validating datastructures
 
   --> schema embedded dict layers
 
@@ -11,14 +11,15 @@ lower-   App Datastructure
 """
 
 __all__ = [
-    "minimal_schemas",
+    "minimal_schema",
     "ADMIN_FIELDS",
 ]
 
 
-from uuid import UUID
 
+from uuid import UUID
 from .validators import *
+
 
 
 ADMIN_FIELDS = [
@@ -28,6 +29,7 @@ ADMIN_FIELDS = [
 
 
 # Can be tuple of synonyms or string
+#  - first in tuple used for display
 muscle_groups = {
     ("shoulders", "deltoids"),
     "triceps", "biceps",
@@ -44,7 +46,7 @@ video_formats = [
 
 
 exercise_item = {
-    "id":          isType(UUID),
+    "_id":         isType(UUID),
     "name":        isString,
     "description": isString,
     "video":       isVideoDataFiletype,
@@ -53,7 +55,7 @@ exercise_item = {
 
 
 food_item = {
-    "id":     isType(UUID),
+    "_id":    isType(UUID),
     "name":   isString,
     "macros": isMacroData,
 }
@@ -67,7 +69,7 @@ food_journal_entry = {
 
 
 food_journal = {
-    "id":        isType(UUID),
+    "_id":       isType(UUID),
     "date":      isDate,
     "published": isType(float),
     "fooditems": food_journal_entry
@@ -75,7 +77,7 @@ food_journal = {
 
 
 user_profile = {
-    "id":          isType(UUID),
+    "_id":         isType(UUID),
     "name":        isString,
     "device":      isInteger,
     "username":    isUserName,
@@ -83,7 +85,7 @@ user_profile = {
 }
 
 
-minimal_schemas = {
+minimal_schema = {
 
     # DATABASE
     "relentless-storage" : {
@@ -94,6 +96,5 @@ minimal_schemas = {
         "users":           user_profile,
     }
 }
-
 
 
