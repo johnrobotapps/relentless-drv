@@ -12,7 +12,7 @@ def isDate(entrydate):
     if type(entrydate) is not str:
         return False
 
-    elif int(parts[0]) - 2020 < 1:
+    elif int(parts[0]) - 1920 < 1:
         return False
 
     elif int(parts[1]) not in list(range(1,13)):
