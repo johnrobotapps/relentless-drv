@@ -64,15 +64,23 @@ food_item = {
 food_journal_entry = {
     "consumed":  isType(float),
     "published": isType(float),
-    "foodItem":  food_item,
 }
+
+food_journal_entry.update(food_item)
 
 
 food_journal = {
     "_id":       isType(UUID),
     "date":      isDate,
     "published": isType(float),
-    "fooditems": food_journal_entry
+    "foodItems": food_journal_entry,
+}
+
+weight_entry = {
+    "_id":       isType(UUID),
+    "date":      isDate,
+    "published": isType(float),
+    "weight":    isType(float),
 }
 
 
@@ -82,6 +90,7 @@ user_profile = {
     "device":      isInteger,
     "username":    isUserName,
     "foodJournal": food_journal,
+    "weight":      weight_entry,
 }
 
 

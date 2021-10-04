@@ -6,6 +6,7 @@ __all__ = [
 
 
 
+
 from pymongo import MongoClient
 from pprint import pformat
 
@@ -21,6 +22,7 @@ logger = get_logger(__name__)
 class MongoDB:
     """Interface to the Mongo Database
     simple wrapper for `pymongo.MongoClient`
+
     """
 
 
@@ -93,7 +95,7 @@ class MongoDB:
                 validated = self.__validate(
                     doc, target
                 )
-        
+
         return validated
 
 
@@ -121,6 +123,24 @@ class MongoDB:
 
         else:
             pass
+
+
+    def update_data(self, target, data):
+        """Find and update a document in the
+        target location. 
+
+        target format: {dbname: {
+            collname: {
+                "_id": uuid,
+                {<target>: data}
+            }
+        }}
+        """
+        # one collection targeted
+        assert len(target) == 1
+        _t, t = target.items()
+        dbname, collname = _t.split(".")
+        coll = self._client[dbname][collname]
 
 
     def __init__(self, host="localhost", port=27017):
@@ -163,6 +183,8 @@ class MongoDB:
         if self._client is None:
             self._client = MongoClient(
                 port=self.port, host=self.host,)
+        #else:
+        #    try a connect method on self._client
 
 
     def is_empty(self):
@@ -178,9 +200,9 @@ class MongoDB:
     def __list_myself(self):
 
         return [
-            nm for nm in 
+            nm for nm in
             self._client.list_database_names()
-            if nm not in ADMIN_FIELDS 
+            if nm not in ADMIN_FIELDS
         ]
 
 

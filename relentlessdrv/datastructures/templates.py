@@ -493,7 +493,7 @@ foodjournal_example = [
         "_id":       UUID,
         "date":      "2021-09-16",
         "published": 1631720232.5943558,
-        "fooditems": [
+        "foodItems": [
             foodLogItem3,
         ],
     },
@@ -501,7 +501,7 @@ foodjournal_example = [
         "_id":       UUID,
         "date":      "2021-09-17",
         "published": 1631820232.5943558,
-        "fooditems": [
+        "foodItems": [
             foodLogItem2,
             foodLogItem1,
             foodLogItem4,
@@ -511,7 +511,7 @@ foodjournal_example = [
         "_id":       UUID,
         "date":      "2021-09-18",
         "published": 1631916603.2869868,
-        "fooditems": [
+        "foodItems": [
             foodLogItem1,
             foodLogItem2,
             foodLogItem3,
@@ -522,7 +522,7 @@ foodjournal_example = [
         "_id":       UUID,
         "date":      "2021-09-19",
         "published": 1632002978.872485,
-        "fooditems": [
+        "foodItems": [
             foodLogItem1,
             foodLogItem2,
         ],
@@ -571,16 +571,19 @@ _minimal_template = {
                     {
                         "_id":       UUID,
                         "published": 1631820233.594355,
+                        "date":      "2021-09-16",
                         "weight":    185,
                     },
                     {
                         "_id":       UUID,
                         "published": 1631840233.594355,
+                        "date":      "2021-09-15",
                         "weight":    186,
                     },
                     {
                         "_id":       UUID,
                         "published": 1631860233.594355,
+                        "date":      "2021-09-17",
                         "weight":    185,
                     },
                 ],
@@ -596,11 +599,13 @@ _minimal_template = {
                     {
                         "_id":       UUID,
                         "published": 1631843233.594355,
+                        "date":      "2021-09-17",
                         "weight":    201,
                     },
                     {
                         "_id":       UUID,
                         "published": 1631865233.594355,
+                        "date":      "2021-09-17",
                         "weight":    206,
                     },
                 ],
@@ -616,11 +621,13 @@ _minimal_template = {
                     {
                         "_id":       UUID,
                         "published": 1631843233.594355,
+                        "date":      "2021-09-17",
                         "weight":    123,
                     },
                     {
                         "_id":       UUID,
                         "published": 1631865233.594355,
+                        "date":      "2021-09-17",
                         "weight":    122,
                     },
                 ],

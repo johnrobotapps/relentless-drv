@@ -2,24 +2,42 @@
 
 
 import sys
-from pymongo import MongoClient
 
-from relentlessdrv.datastructures import (
-    ADMIN_FIELDS, minimal_schemas
+# TODO TODO
+# MONGODB base SHOULD MOVE TO 
+# RELENTLESS-SRV
+from relentlessdrv import MongoDB
+
+from relentlessdrv import (
+    ADMIN_FIELDS,
+    minimal_schema,
+    minimalTemplate,
 )
 
 
+# set up the database and schema
+client = MongoDB()
+client.schema = minimal_schema
+client.connect()
 
-client = MongoClient()
+# block if not empty!
+assert not client
 
-dbfields = list(minimal_schemas)
+# create template with new, unique ids
+template = minimalTemplate()
 
-for dbfield in dbfields:
+# for 
+client._validate_document(template)
+
+
+
+for db in list(client.schema):
+
     newdb = client[dbfield]
-    for field in minimal_schemas[dbfield]:
+
+    for field in list(client.schema[dbfield]):
+
         newdb.create_collection(field)
-        # Cant insert schema
-        #newdb[field].insert_one(
-        #    minimal_schemas[dbfield][field])
-        
+
+
 
