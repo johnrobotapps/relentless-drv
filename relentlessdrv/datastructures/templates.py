@@ -15,7 +15,8 @@ is defined.
 
 __all__ = [
     "minimalTemplate",
-#    "template_by_document",
+    "templateDocuments",
+    "docQueries",
 ]
 
 
@@ -30,111 +31,135 @@ logger = get_logger(__name__)
 
 
 
-#def _gen_addresses(key, datadict, _routes, _root):
-#    """Generate the set of valid addresses for
-#    data entry from a (presumably template)
-#    collection.
-#
-#    `_routes` must be given as `[""]`
-#    `_root` must be given as `""`
-#
-#    Arguments
-#    ---------
-#    key: `str` that marks routes through the data
-#    datadict: `dict` with embedded dicts/lists
-#
-#    Returns
-#    -------
-#    `list` of addresses
-#
-#    Address format:
-#     - a set of dict key tuples leading to
-#       data entry points
-#
-#    Addresses include:
-#     - [dbname, colname]
-#
-#    """
+
+def docQueries(documents, key="_id"):
+
+    queries = list()
+
+    n = 1
+    for addr,doc in map(lambda _d: list(_d.items())[0], documents):
+
+        n+=1
+        thisquery = dict()
+
+        query = addr.split(".")
+        dbname = query.pop(0)
+        collname = query[0]
+
+        thisquery[dbname] = i = dict()
+
+        kc = list(doc.keys())[0]
+        d = doc[kc]
+
+        if len(query) == 1:
+            dest = collname
+        else:
+            dest = query.pop()
+
+        keychain = [UUID(k) for k in kc.split(".") if k]
+
+        for q, k in zip(query, keychain):
+            i[q] = {key: k}
+            i = i[q]
+
+        i[dest] = d
+        queries.append(thisquery)
+
+    return queries
 
 
-# THIS ONE is closest, givese duplicates
-# TODO FIXME try to reduce _routes to single
-#            or use the 'pop's to always
-#            give one copy of each address
-#def _gen_addresses(key, datadict, _routes, _root, q=1):
-#    print((
-#        f"{q} 1-                                 "
-#        f"given fields {list(datadict)}"
-#    ))
-#    if hasattr(datadict, 'items'):
-#        print("\n\n========================")
-#        print(f"{q} 2-     {pformat(_routes)}")
-#        for k,v in filter(
-#            # skips all fields (ie _id) that
-#            # are not iterable or strings
-#            lambda i: hasattr(i[1], "__iter__") and \
-#                type(i[1]) is not str,
-#            datadict.items()
-#        ):
-#            print(f"{q} 3-                      AT>>> {k}")
-#            # NOTE assumes length 1 outer dict
-#            #      corresponding to a MongoDB
-#            #      with name stored in _root
-#            if not _root: _root += k
-#            if not _routes[-1]: _routes[-1] += _root
-#            #
-#            u=1
-#            if isinstance(v, dict):
-#                print(f"{q} 4-     DICT DIVE")
-#                print(f"          Now routes: {pformat(_routes)}")
-#                for result in _gen_addresses(key, v, _routes, _root, q+1):
-#                    print(f"{q} {u} 5-     HERE IS DDD {result}")
-#                    print(f"            Now routes: {pformat(_routes)}")
-#                    u+=1
-#                    yield result
-#                    print(f"{q} {u} 5-          RRRRroutes: {pformat(_routes)}")
-#            elif isinstance(v, list):
-#                print(f"{q} 6-     LIST DIVE")
-#                for d in filter(
-#                    lambda i: type(i) is dict,
-#                    v[:1]
-#                ):
-#                    print(f"          Now routes: {pformat(_routes)}")
-#                    if key in d:
-#                        print(f"{q}           {pformat(_routes)}")
-#                        print(f"{q} 7-    -->>> extending _route with {k}")
-#                        _routes[-1] += f".{k}"
-#                        if _routes[-1] != _root:
-#                            print(f"{q} 7..-      YIELDING {_routes[-1]}")
-#                            yield _routes[-1]
-#                            print(f"{q} 7.-      afteryeld routes: {pformat(_routes)}")
-#                    for result in _gen_addresses(key, d, _routes, _root+f".{k}", q+1):
-#                        print(f"{q} {u} 8.-     HERE IS LLL {result}")
-#                        print(f"            Now routes: {pformat(_routes)}")
-#                        u+=1
-#                        yield result
-#                        print(f"{q} {u} 8-          RRRRroutes: {pformat(_routes)}")
-#            else:
-#                # `yield v` gives raw data
-#                # from outermost call
-#                #yield v
-#                #print(f"{q}-     BB    bottom data: {v}")
-#                pass
-#        else:
-#            print(f"{q} 9-     IN THE ELSERY")
-#            # this yields valid addresses
-#            # for data in a MongoDB
-#            # string with "." separator
-#            #  dbname.collname[.embedding]
-#            if _routes[-1]:
-#                #yield _routes[-1]
-#                print(f"{q} 10..-      YIELDING {_routes[-1]}")
-#                yield _routes.pop()
-#                print(f"{q} 10.-      YELDed ")
-#                _routes.append("")
-#            print(f"{q} 10-     {pformat(_routes)}")
+# lowerCamel for factory type things
+def minimalTemplate():
+    """Random UUIDs created for template
+    """
+    return _replace_type(
+        _minimal_template, UUID, uuid4
+    )
 
 
+def templateDocuments(template=None):
+    key = "_id"
+    if template is None:
+        template = minimalTemplate()
+    return _get_flat_docs(key, template)
+
+
+
+# FIXME gets incomplete addresses
+def _get_flat_docs(key, datadict):
+    # alldocs has many incomplete addresses
+    # incomplete addresses start with "."
+    alldocs = list(_gen_docs(key, datadict, [""], ""))
+    # clean&flatten the dirty set of addresses
+    # so that only the addressed
+    # doc level is included
+    alldocs = _remove_subdocs(key, _fix_addresses(alldocs))
+    return alldocs
+    
+
+
+def _fix_addresses(documents):
+    fixed_addresses = set(map(lambda d: list(d)[0], filter(
+        lambda d: not list(d)[0].startswith("."),
+        documents
+    )))
+    for d in documents:
+        k,v = list(d.items())[0]
+        if not k.startswith("."): continue
+        for a in fixed_addresses:
+            if a.endswith(k):
+                d.update(
+                    {a: d.pop(k)}
+                )
+    return documents
+
+
+def _remove_subdocs(key, documents):
+    for d in documents:
+        k,_v = list(d.items())[0]
+        kc,v = list(_v.items())[0]
+        for l,u in v.items():
+            if type(u) is list:
+                if not u: continue
+                ud = u[0]
+                if type(ud) is dict:
+                    if key in ud:
+                        # remove sub docs
+                        v[l] = list()
+    return documents
+
+
+
+def _gen_docs(key, datadict, _routes, _root, keychain=[], q=1):
+    if hasattr(datadict, 'items'):
+        for k,v in filter(
+            lambda i: hasattr(i[1], "__iter__") and \
+                type(i[1]) is not str,
+            datadict.items()
+        ):
+            if not _root: _root += k
+            if not _routes[-1]: _routes[-1] += _root
+            if isinstance(v, dict):
+                for result in _gen_docs(key, v, _routes, _root, keychain, q+1):
+                    yield result
+            elif isinstance(v, list):
+                for d in filter(
+                    lambda i: type(i) is dict, v
+                ):
+                    if key in d:
+                        _routes[-1] += f".{k}"
+                        if _routes[-1] != _root:
+                            #yield _routes[-1]
+                            yield {_routes[-1]: {".".join([str(y) for y in keychain]): d}}
+                        keychain.append(d[key])
+                    for result in _gen_docs(key, d, _routes, _root+f".{k}", keychain, q+1):
+                        yield result
+                    if key in d: keychain.pop()
+        else:
+            if _routes[-1]:
+                #yield _routes.pop()
+                _routes.pop()
+                _routes.append("")
 
 
 
@@ -168,181 +193,6 @@ def _gen_addresses(key, datadict, _routes, _root, q=1):
                 _routes.append("")
 
 
-
-#set(_gen_addresses("_id", template, [""], ""))
-
-
-#def _gen_addresses(key, datadict, _routes, _root, _route, q=1):
-#    #print((
-#    #    f"{q}1-                                 "
-#    #    f"given {datadict}"
-#    #))
-#    if hasattr(datadict, 'items'):
-#        #print("\n\n========================")
-#        #print(f"{q}2-     {_routes}")
-#        for k,v in filter(
-#            lambda i: hasattr(i[1], "__iter__"),
-#            datadict.items()
-#        ):
-#            #print(f"{q}3-     AT>>> {_routes[-1]}.{k}")
-#            # NOTE assumes length 1 outer dict
-#            #      corresponding to a MongoDB
-#            #      with name stored in _root
-#            if not _root: _root += k
-#            if not _route: _route += _root
-#            if not _routes[-1]: _routes[-1] += _root
-#            if isinstance(v, dict):
-#                #print(f"{q}4-     DICT DIVE")
-#                for result in _gen_addresses(key, v, _routes, _root, _route, q+1):
-#                    #print(f"{q}5-     HERE IS DDD {result}")
-#                    yield result
-#            elif isinstance(v, list):
-#                #print(f"{q}6-     LIST DIVE")
-#                for d in filter(
-#                    lambda i: type(i) is dict,
-#                    v[:1]
-#                ):
-#                    if key in d:
-#                        if _routes[-1] != _root:
-#                            print(f"{q}7-     yielding {_routes[-1]}=={_route}")
-#                            yield _routes[-1]
-#                        #print(f"{q}7-       -->>> adding data element {k}")
-#                        _route += f".{k}"
-#                        _routes[-1] += f".{k}"
-#                    for result in _gen_addresses(key, d, _routes, _root, _route, q+1):
-#                        #print(f"{q}8-     HERE IS LLL {result}")
-#                        yield result
-#            else:
-#                # `yield v` gives raw data
-#                # from outermost call
-#                #yield v
-#                #print(f"{q}-     BB    bottom data: {v}")
-#                pass
-#        else:
-#            print(f"{q}9-     IN THE ELSERY")
-#            # this yields valid addresses
-#            # for data in a MongoDB
-#            # string with "." separator
-#            #  dbname.collname[.embedding]
-#            if _routes[-1]:
-#                print(f"{q}9-     yielding {_routes[-1]}=={_route}")
-#                yield _routes[-1]
-#                _route = ""
-#                _routes.append("")
-#            print(f"{q}10-     {_routes}, {_route}")
-#
-#
-#template = minimalTemplate()
-#list(_gen_addresses("_id", template, [""], "", ""))
-#
-#
-#def _gen_addresses(key, datadict, _route, _root, q=1):
-#    print((
-#        f"{q}1-                                 "
-#        f"given {datadict}"
-#    ))
-#    assert type(_route) is str
-#    assert type(_root) is str
-#    if hasattr(datadict, 'items'):
-#        print("\n\n========================")
-#        print(f"{q}2-     {_route}")
-#        for k,v in filter(
-#            lambda i: hasattr(i[1], "__iter__"),
-#            datadict.items()
-#        ):
-#            print(f"{q}3-     AT>>> {_route}.{k}")
-#            # NOTE assumes length 1 outer dict
-#            #      corresponding to a MongoDB
-#            #      with name stored in _root
-#            if not _root: _root += k
-#            if not _route: _route += _root
-#            if isinstance(v, dict):
-#                print(f"{q}4-     DICT DIVE")
-#                for result in _gen_addresses(key, v, _route, _root, q+1):
-#                    print(f"{q}5-     HERE IS DDD {result}")
-#                    yield result
-#            elif isinstance(v, list):
-#                print(f"{q}6-     LIST DIVE")
-#                for d in filter(
-#                    lambda i: type(i) is dict,
-#                    v[:1]
-#                ):
-#                    if key in d:
-#                        # else we are at db level
-#                        # iterating the collections
-#                        if _route != _root:
-#                            yield _route
-#                        print(f"{q}7-       -->>> adding data element {k}")
-#                        _route += f".{k}"
-#                    for result in _gen_addresses(key, d, _route, _root, q+1):
-#                        print(f"{q}8-     HERE IS LLL {result}")
-#                        yield result
-#            else:
-#                # `yield v` gives raw data
-#                # from outermost call
-#                #yield v
-#                print(f"{q}-          BB    bottom data: {v}")
-#                #pass
-#        else:
-#            print(f"{q}9-      IN THE ELSERY")
-#            print(f"{q}10-     {_route}")
-#            # this yields valid addresses
-#            # for data in a MongoDB
-#            # string with "." separator
-#            #  dbname.collname[.embedding]
-#            yield _route
-#            _route = ""
-#
-#
-#
-#list(_gen_addresses("_id",minimalTemplate(), "", ""))
-
-
-
-def db_data_addresses(dbdict):
-
-    if len(dbdict) != 1:
-        logger.debug("dbdict length must be 1")
-
-    dbname = list(dbdict)[0]
-    result = {dbname: dict()}
-    t = dbdict[dbname]
-
-    for colname, collection in dbdict[dbname].iteritems():
-
-        if type(collection) is not list:
-            logger.debug((
-                f"Collection {colname} is "
-                f"type {type(collection)}, "
-                f"list is required"
-            ))
-            continue
-
-
-        result[dbname][colname] = list(_gen_addresses(collection))
-
-        for doc in collection:
-
-            if type(doc) is not dict:
-                logger.debug((
-                    f"Document in {colname} is "
-                    f"type {type(doc)}, "
-                    f"dict is required"
-                ))
-                continue
-
-                for k,v in doc.items():
-                    r.append(k)
-                    g
-
-
-# lowerCamel for factory type things
-def minimalTemplate():
-    """Random UUIDs created for template
-    """
-    return _replace_type(
-        _minimal_template, UUID, uuid4
-    )
 
 
 
@@ -635,4 +485,239 @@ _minimal_template = {
         ],
     },
 }
+
+
+#def _gen_addresses(key, datadict, _routes, _root):
+#    """Generate the set of valid addresses for
+#    data entry from a (presumably template)
+#    collection.
+#
+#    `_routes` must be given as `[""]`
+#    `_root` must be given as `""`
+#
+#    Arguments
+#    ---------
+#    key: `str` that marks routes through the data
+#    datadict: `dict` with embedded dicts/lists
+#
+#    Returns
+#    -------
+#    `list` of addresses
+#
+#    Address format:
+#     - a set of dict key tuples leading to
+#       data entry points
+#
+#    Addresses include:
+#     - [dbname, colname]
+#
+#    """
+
+
+# THIS ONE is closest, givese duplicates
+# TODO FIXME try to reduce _routes to single
+#            or use the 'pop's to always
+#            give one copy of each address
+#def _gen_addresses(key, datadict, _routes, _root, q=1):
+#    print((
+#        f"{q} 1-                                 "
+#        f"given fields {list(datadict)}"
+#    ))
+#    if hasattr(datadict, 'items'):
+#        print("\n\n========================")
+#        print(f"{q} 2-     {pformat(_routes)}")
+#        for k,v in filter(
+#            # skips all fields (ie _id) that
+#            # are not iterable or strings
+#            lambda i: hasattr(i[1], "__iter__") and \
+#                type(i[1]) is not str,
+#            datadict.items()
+#        ):
+#            print(f"{q} 3-                      AT>>> {k}")
+#            # NOTE assumes length 1 outer dict
+#            #      corresponding to a MongoDB
+#            #      with name stored in _root
+#            if not _root: _root += k
+#            if not _routes[-1]: _routes[-1] += _root
+#            #
+#            u=1
+#            if isinstance(v, dict):
+#                print(f"{q} 4-     DICT DIVE")
+#                print(f"          Now routes: {pformat(_routes)}")
+#                for result in _gen_addresses(key, v, _routes, _root, q+1):
+#                    print(f"{q} {u} 5-     HERE IS DDD {result}")
+#                    print(f"            Now routes: {pformat(_routes)}")
+#                    u+=1
+#                    yield result
+#                    print(f"{q} {u} 5-          RRRRroutes: {pformat(_routes)}")
+#            elif isinstance(v, list):
+#                print(f"{q} 6-     LIST DIVE")
+#                for d in filter(
+#                    lambda i: type(i) is dict,
+#                    v[:1]
+#                ):
+#                    print(f"          Now routes: {pformat(_routes)}")
+#                    if key in d:
+#                        print(f"{q}           {pformat(_routes)}")
+#                        print(f"{q} 7-    -->>> extending _route with {k}")
+#                        _routes[-1] += f".{k}"
+#                        if _routes[-1] != _root:
+#                            print(f"{q} 7..-      YIELDING {_routes[-1]}")
+#                            yield _routes[-1]
+#                            print(f"{q} 7.-      afteryeld routes: {pformat(_routes)}")
+#                    for result in _gen_addresses(key, d, _routes, _root+f".{k}", q+1):
+#                        print(f"{q} {u} 8.-     HERE IS LLL {result}")
+#                        print(f"            Now routes: {pformat(_routes)}")
+#                        u+=1
+#                        yield result
+#                        print(f"{q} {u} 8-          RRRRroutes: {pformat(_routes)}")
+#            else:
+#                # `yield v` gives raw data
+#                # from outermost call
+#                #yield v
+#                #print(f"{q}-     BB    bottom data: {v}")
+#                pass
+#        else:
+#            print(f"{q} 9-     IN THE ELSERY")
+#            # this yields valid addresses
+#            # for data in a MongoDB
+#            # string with "." separator
+#            #  dbname.collname[.embedding]
+#            if _routes[-1]:
+#                #yield _routes[-1]
+#                print(f"{q} 10..-      YIELDING {_routes[-1]}")
+#                yield _routes.pop()
+#                print(f"{q} 10.-      YELDed ")
+#                _routes.append("")
+#            print(f"{q} 10-     {pformat(_routes)}")
+
+
+#set(_gen_addresses("_id", template, [""], ""))
+
+
+#def _gen_addresses(key, datadict, _routes, _root, _route, q=1):
+#    #print((
+#    #    f"{q}1-                                 "
+#    #    f"given {datadict}"
+#    #))
+#    if hasattr(datadict, 'items'):
+#        #print("\n\n========================")
+#        #print(f"{q}2-     {_routes}")
+#        for k,v in filter(
+#            lambda i: hasattr(i[1], "__iter__"),
+#            datadict.items()
+#        ):
+#            #print(f"{q}3-     AT>>> {_routes[-1]}.{k}")
+#            # NOTE assumes length 1 outer dict
+#            #      corresponding to a MongoDB
+#            #      with name stored in _root
+#            if not _root: _root += k
+#            if not _route: _route += _root
+#            if not _routes[-1]: _routes[-1] += _root
+#            if isinstance(v, dict):
+#                #print(f"{q}4-     DICT DIVE")
+#                for result in _gen_addresses(key, v, _routes, _root, _route, q+1):
+#                    #print(f"{q}5-     HERE IS DDD {result}")
+#                    yield result
+#            elif isinstance(v, list):
+#                #print(f"{q}6-     LIST DIVE")
+#                for d in filter(
+#                    lambda i: type(i) is dict,
+#                    v[:1]
+#                ):
+#                    if key in d:
+#                        if _routes[-1] != _root:
+#                            print(f"{q}7-     yielding {_routes[-1]}=={_route}")
+#                            yield _routes[-1]
+#                        #print(f"{q}7-       -->>> adding data element {k}")
+#                        _route += f".{k}"
+#                        _routes[-1] += f".{k}"
+#                    for result in _gen_addresses(key, d, _routes, _root, _route, q+1):
+#                        #print(f"{q}8-     HERE IS LLL {result}")
+#                        yield result
+#            else:
+#                # `yield v` gives raw data
+#                # from outermost call
+#                #yield v
+#                #print(f"{q}-     BB    bottom data: {v}")
+#                pass
+#        else:
+#            print(f"{q}9-     IN THE ELSERY")
+#            # this yields valid addresses
+#            # for data in a MongoDB
+#            # string with "." separator
+#            #  dbname.collname[.embedding]
+#            if _routes[-1]:
+#                print(f"{q}9-     yielding {_routes[-1]}=={_route}")
+#                yield _routes[-1]
+#                _route = ""
+#                _routes.append("")
+#            print(f"{q}10-     {_routes}, {_route}")
+#
+#
+#template = minimalTemplate()
+#list(_gen_addresses("_id", template, [""], "", ""))
+#
+#
+#def _gen_addresses(key, datadict, _route, _root, q=1):
+#    print((
+#        f"{q}1-                                 "
+#        f"given {datadict}"
+#    ))
+#    assert type(_route) is str
+#    assert type(_root) is str
+#    if hasattr(datadict, 'items'):
+#        print("\n\n========================")
+#        print(f"{q}2-     {_route}")
+#        for k,v in filter(
+#            lambda i: hasattr(i[1], "__iter__"),
+#            datadict.items()
+#        ):
+#            print(f"{q}3-     AT>>> {_route}.{k}")
+#            # NOTE assumes length 1 outer dict
+#            #      corresponding to a MongoDB
+#            #      with name stored in _root
+#            if not _root: _root += k
+#            if not _route: _route += _root
+#            if isinstance(v, dict):
+#                print(f"{q}4-     DICT DIVE")
+#                for result in _gen_addresses(key, v, _route, _root, q+1):
+#                    print(f"{q}5-     HERE IS DDD {result}")
+#                    yield result
+#            elif isinstance(v, list):
+#                print(f"{q}6-     LIST DIVE")
+#                for d in filter(
+#                    lambda i: type(i) is dict,
+#                    v[:1]
+#                ):
+#                    if key in d:
+#                        # else we are at db level
+#                        # iterating the collections
+#                        if _route != _root:
+#                            yield _route
+#                        print(f"{q}7-       -->>> adding data element {k}")
+#                        _route += f".{k}"
+#                    for result in _gen_addresses(key, d, _route, _root, q+1):
+#                        print(f"{q}8-     HERE IS LLL {result}")
+#                        yield result
+#            else:
+#                # `yield v` gives raw data
+#                # from outermost call
+#                #yield v
+#                print(f"{q}-          BB    bottom data: {v}")
+#                #pass
+#        else:
+#            print(f"{q}9-      IN THE ELSERY")
+#            print(f"{q}10-     {_route}")
+#            # this yields valid addresses
+#            # for data in a MongoDB
+#            # string with "." separator
+#            #  dbname.collname[.embedding]
+#            yield _route
+#            _route = ""
+#
+#
+#
+#list(_gen_addresses("_id",minimalTemplate(), "", ""))
+
 

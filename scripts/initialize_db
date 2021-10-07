@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 
-import sys
+#import sys
+
+import copy
 
 # TODO TODO
 # MONGODB base SHOULD MOVE TO 
@@ -11,7 +13,9 @@ from relentlessdrv import MongoDB
 from relentlessdrv import (
     ADMIN_FIELDS,
     minimal_schema,
-    minimalTemplate,
+    #minimalTemplate,
+    templateDocuments,
+    docQueries,
 )
 
 
@@ -24,20 +28,24 @@ client.connect()
 assert not client
 
 # create template with new, unique ids
-template = minimalTemplate()
+docs = templateDocuments()
+dbquerys = docQueries(docs)
 
-# for 
-client._validate_document(template)
+for q in dbquerys:
+    client.put(q)
 
-
-
-for db in list(client.schema):
-
-    newdb = client[dbfield]
-
-    for field in list(client.schema[dbfield]):
-
-        newdb.create_collection(field)
-
+## for 
+#client._validate_document(template)
+#
+#
+#
+#for db in list(client.schema):
+#
+#    newdb = client[dbfield]
+#
+#    for field in list(client.schema[dbfield]):
+#
+#        newdb.create_collection(field)
+#
 
 

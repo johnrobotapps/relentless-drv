@@ -26,6 +26,16 @@ class MongoDB:
     """
 
 
+    def put(self, document):
+        if not self.connected: return
+        assert len(document) == 1
+        assert type(document) is dict
+        db_name, document = list(document.items())[0]
+        assert len(document) == 1
+        assert db_name == self._db_name
+        coll_name, document = list(document.items())[0]
+
+
     @property
     def connected(self):
         """Check if instance is connected to DB
@@ -35,6 +45,11 @@ class MongoDB:
         return bool(
             self._client.server_info()
         ) if self._client else False
+
+    @property
+    def database(self):
+        if connected:
+            return self._client[self._db_name]
 
 
     def __validate(self, document, target):
@@ -53,6 +68,10 @@ class MongoDB:
         # Every field in schema must
         # exist in the doc
         for k,checking_func in m:
+            print((
+                f"{k}: {checking_func}- "
+                f"{checking_func(doc[k])}"
+            ))
             try: checking_func(doc[k])
             except: break
 
@@ -60,6 +79,18 @@ class MongoDB:
             validated = True
 
         return validated
+
+
+    def __iter_collections(self):
+        if self.connected:
+            for collection in self._coll_names:
+                yield self._client[
+                    self._db_name][collection
+                ]
+
+
+    def __check_database(self):
+        self.__iter_collections()
 
 
     def _validate_document(self, document):
@@ -92,6 +123,10 @@ class MongoDB:
                 doc = doc[t]
 
             else:
+                print((
+                    f"LOADING UP: {target} "
+                    f"with:\n{pformat(list(doc))}"
+                ))
                 validated = self.__validate(
                     doc, target
                 )
@@ -155,6 +190,7 @@ class MongoDB:
 
         self._client = None
         self._schema = None
+        self._db_name = None
 
 
     @property
@@ -173,9 +209,15 @@ class MongoDB:
         # TODO schema should be validated
         #      that is has correct setup
         assert type(schema) is dict
+        # just dealing with 1 database
+        assert len(schema) == 1
 
         if self._schema is None:
             self._schema = schema
+            self._db_name = list(schema)[0]
+            self._coll_names = list(schema[
+                self._db_name
+            ])
 
 
     def connect(self):

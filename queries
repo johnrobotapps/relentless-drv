@@ -1,0 +1,27 @@
+
+
+{dbname: {
+    collname: {
+        document
+    },
+}}
+
+
+{dbname: {
+    collname: {
+        "_id": UUID,
+        addr[0]: document
+    },
+}}
+
+
+{dbname: {
+    collname: {
+        "_id": UUID,
+        addr[0]: {
+            addr[1]: document
+        }
+    },
+}}
+
+
