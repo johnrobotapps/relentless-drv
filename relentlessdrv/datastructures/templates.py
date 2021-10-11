@@ -35,6 +35,7 @@ logger = get_logger(__name__)
 def docQueries(documents, key="_id"):
 
     queries = list()
+    operation = None
 
     n = 1
     for addr,doc in map(lambda _d: list(_d.items())[0], documents):
@@ -52,8 +53,11 @@ def docQueries(documents, key="_id"):
         d = doc[kc]
 
         if len(query) == 1:
+            operation = "$set"
             dest = collname
+
         else:
+            operation = "$push"
             dest = query.pop()
 
         keychain = [UUID(k) for k in kc.split(".") if k]
@@ -62,7 +66,7 @@ def docQueries(documents, key="_id"):
             i[q] = {key: k}
             i = i[q]
 
-        i[dest] = d
+        i[dest] = {operation: d}
         queries.append(thisquery)
 
     return queries
@@ -388,17 +392,17 @@ _minimal_template = {
         "exerciseLibrary": [
             {
                 "_id":         UUID,
-                "muscleGroup": "biceps",
-                "name":        "dumbell curl",
-                "video":       "dumbell-curl.mp4",
-                "description": "curl dumbell upwards from dead hang to shoulder",
+                "muscleGroup": "chest",
+                "name":        "Bench Press- dumbell, flat, prone",
+                "description": "Add description here...",
+                "filename":    "examples/chest-prone-flat-dumbellpress.gif",
             },
             {
                 "_id":         UUID,
-                "muscleGroup": "triceps",
-                "name":        "tricep extension-rope",
-                "video":       "tricep-extension-rope.mp4",
-                "description": "extend rope downwards from shoulder to hanging position",
+                "muscleGroup": "chest",
+                "name":        "Bench Press- dumbell, neutral, prone",
+                "description": "Add description here...",
+                "filename":    "examples/chest-prone-neutral-dumbellpress.gif",
             },
         ],
         # Collection Name

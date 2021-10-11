@@ -49,7 +49,7 @@ exercise_item = {
     "_id":         isType(UUID),
     "name":        isString,
     "description": isString,
-    "video":       isVideoDataFiletype,
+    "filename":    isVideoDataFiletype,
     "muscleGroup": isaMuscleGroup,
 }
 

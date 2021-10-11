@@ -5,6 +5,8 @@
 
 import copy
 
+from pprint import pprint
+
 # TODO TODO
 # MONGODB base SHOULD MOVE TO 
 # RELENTLESS-SRV
@@ -25,11 +27,16 @@ client.schema = minimal_schema
 client.connect()
 
 # block if not empty!
+client._client.drop_database(
+    list(minimal_schema)[0])
+
 assert not client
 
 # create template with new, unique ids
 docs = templateDocuments()
+[pprint(d) for d in docs]
 dbquerys = docQueries(docs)
+[pprint(d) for d in dbquerys]
 
 for q in dbquerys:
     client.put(q)
